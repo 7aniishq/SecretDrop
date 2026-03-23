@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SecretDrop — Secure. Self-destructing. Private.</title>
+  <meta name="description" content="SecretDrop — Share secrets, notes, and files securely. End-to-end encrypted, self-destructing, zero-trust sharing.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════════ */
+    /*  RESET                                          */
+    /* ═══════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  DESIGN TOKENS                                  */
+    /* ═══════════════════════════════════════════════ */
+    :root {
+      --bg-primary: #0e0e11;
+      --bg-secondary: #16161a;
+      --bg-card: #1a1a21;
+      --bg-input: #121217;
+      --bg-hover: #1f1f28;
+
+      --border: #2a2a35;
+      --border-focus: #4a4a6a;
+      --border-subtle: #222230;
+
+      --text-primary: #e4e4e8;
+      --text-secondary: #8b8b9e;
+      --text-muted: #5a5a6e;
+      --text-accent: #7c8cf5;
+
+      --accent: #6c7bf0;
+      --accent-dim: #5a68d4;
+      --accent-subtle: rgba(108, 123, 240, 0.08);
+
+      --purple: #9b7cf5;
+      --purple-subtle: rgba(155, 124, 245, 0.08);
+
+      --success: #4ade80;
+      --success-subtle: rgba(74, 222, 128, 0.08);
+      --warning: #f59e0b;
+      --warning-subtle: rgba(245, 158, 11, 0.08);
+      --danger: #ef4444;
+      --danger-subtle: rgba(239, 68, 68, 0.08);
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.25);
+
+      --transition-fast: 150ms ease;
+      --transition-normal: 250ms ease;
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  BODY                                           */
+    /* ═══════════════════════════════════════════════ */
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  NAV                                            */
+    /* ═══════════════════════════════════════════════ */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 24px 0;
+    }
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--accent-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--accent);
+      font-size: 16px;
+    }
+    .logo-text {
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text-primary);
+      letter-spacing: -0.3px;
+    }
+    .nav-links {
+      display: flex; gap: 8px;
+    }
+    .nav-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      transition: color var(--transition-fast), background var(--transition-fast);
+    }
+    .nav-link:hover {
+      color: var(--text-primary);
+      background: var(--bg-hover);
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  LAYOUT                                         */
+    /* ═══════════════════════════════════════════════ */
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  HERO                                           */
+    /* ═══════════════════════════════════════════════ */
+    .hero {
+      text-align: center;
+      padding: 64px 0 48px;
+    }
+    .hero h1 {
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+    .hero h1 span {
+      color: var(--accent);
+    }
+    .hero .tagline {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  CARD                                           */
+    /* ═══════════════════════════════════════════════ */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  TABS                                           */
+    /* ═══════════════════════════════════════════════ */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      margin-bottom: 28px;
+    }
+    .tab {
+      flex: 1;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .tab:hover { color: var(--text-primary); }
+    .tab.active {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      box-shadow: var(--shadow-sm);
+    }
+    .tab svg { width: 15px; height: 15px; opacity: 0.7; }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  FORM ELEMENTS                                  */
+    /* ═══════════════════════════════════════════════ */
+    .form-group { margin-bottom: 20px; }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    textarea, input[type="text"], input[type="password"], input[type="number"], select {
+      width: 100%;
+      padding: 12px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--text-primary);
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color var(--transition-fast);
+    }
+    textarea:focus, input:focus, select:focus {
+      border-color: var(--border-focus);
+    }
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+      line-height: 1.7;
+    }
+    textarea::placeholder, input::placeholder {
+      color: var(--text-muted);
+    }
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%235a5a6e' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+
+    /* Options row */
+    .options-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 480px) {
+      .options-row { grid-template-columns: 1fr; }
+    }
+
+    /* Password toggle */
+    .password-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .password-toggle input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .password-toggle span {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  FILE DROP ZONE                                 */
+    /* ═══════════════════════════════════════════════ */
+    .drop-zone {
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius-md);
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      background: var(--bg-input);
+    }
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-subtle);
+    }
+    .drop-zone-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+      opacity: 0.4;
+    }
+    .drop-zone-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .drop-zone-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* File preview */
+    .file-preview {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-top: 16px;
+    }
+    .file-preview-icon {
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--purple-subtle);
+      border-radius: var(--radius-sm);
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .file-preview-info { flex: 1; min-width: 0; }
+    .file-preview-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-preview-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .file-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      transition: color var(--transition-fast), background var(--transition-fast);
+    }
+    .file-remove:hover {
+      color: var(--danger);
+      background: var(--danger-subtle);
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  BUTTON                                         */
+    /* ═══════════════════════════════════════════════ */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-dim);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      border-color: var(--border-focus);
+      color: var(--text-primary);
+    }
+    .btn-danger {
+      background: var(--danger-subtle);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.15);
+    }
+    .btn-sm {
+      padding: 10px 16px;
+      font-size: 13px;
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  RESULT                                         */
+    /* ═══════════════════════════════════════════════ */
+    .result-card {
+      margin-top: 24px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+    }
+    .result-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    .result-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--text-accent);
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      word-break: break-all;
+      margin-bottom: 14px;
+    }
+    .result-meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .result-meta-item {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .result-actions {
+      display: flex; gap: 10px;
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  VIEW SECRET PAGE                               */
+    /* ═══════════════════════════════════════════════ */
+    .view-page {
+      padding: 80px 0 60px;
+    }
+    .view-card {
+      text-align: center;
+    }
+    .view-card h2 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .view-card .view-sub {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+    }
+    .warning-banner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--warning-subtle);
+      border: 1px solid rgba(245, 158, 11, 0.12);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: var(--warning);
+    }
+    .secret-content-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 24px;
+      text-align: left;
+      font-size: 15px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+    }
+    .views-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      margin-bottom: 20px;
+    }
+    .destroyed-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--danger);
+      background: var(--danger-subtle);
+      border: 1px solid rgba(239, 68, 68, 0.12);
+      border-radius: var(--radius-sm);
+      padding: 6px 14px;
+      margin-top: 6px;
+    }
+
+    /* Password input on view page */
+    .password-prompt {
+      max-width: 320px;
+      margin: 0 auto 20px;
+    }
+    .password-prompt input {
+      text-align: center;
+    }
+
+    /* File download on view */
+    .file-download-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 18px;
+      text-align: left;
+    }
+    .file-download-icon {
+      width: 48px; height: 48px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--accent-subtle);
+      border-radius: var(--radius-sm);
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .file-download-info { flex: 1; }
+    .file-download-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .file-download-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  SECURITY INDICATORS                            */
+    /* ═══════════════════════════════════════════════ */
+    .security-strip {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      padding: 40px 0 20px;
+    }
+    .security-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+    .security-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  HOW IT WORKS                                   */
+    /* ═══════════════════════════════════════════════ */
+    .how-section {
+      padding: 48px 0 40px;
+    }
+    .how-title {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 600px) {
+      .how-steps { grid-template-columns: 1fr; }
+    }
+    .how-step {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px 20px;
+      text-align: center;
+    }
+    .how-step-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--accent-subtle);
+      border-radius: var(--radius-sm);
+      display: inline-block;
+      padding: 3px 10px;
+      margin-bottom: 14px;
+    }
+    .how-step-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .how-step-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  FOOTER                                         */
+    /* ═══════════════════════════════════════════════ */
+    footer {
+      text-align: center;
+      padding: 40px 24px 32px;
+      border-top: 1px solid var(--border-subtle);
+      margin-top: 20px;
+    }
+    footer p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  ERROR PAGE                                     */
+    /* ═══════════════════════════════════════════════ */
+    .error-card {
+      text-align: center;
+      padding: 48px 24px;
+    }
+    .error-icon {
+      font-size: 40px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    .error-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+    .error-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  TOAST                                          */
+    /* ═══════════════════════════════════════════════ */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 12px 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-md);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-normal), transform var(--transition-normal);
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  PROGRESS BAR                                   */
+    /* ═══════════════════════════════════════════════ */
+    .progress-bar-wrap {
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  UTILITIES                                      */
+    /* ═══════════════════════════════════════════════ */
+    .hidden { display: none !important; }
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-24 { margin-top: 24px; }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  SPINNER                                        */
+    /* ═══════════════════════════════════════════════ */
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ═══════════════════════════════════════════════ */
+    /*  SCREENSHOT & RECORDING PROTECTION              */
+    /* ═══════════════════════════════════════════════ */
+
+    /* Hide everything when printing / print-to-PDF */
+    @media print {
+      body * { display: none !important; }
+      body::after {
+        content: 'SecretDrop — Content is protected and cannot be printed.';
+        display: block;
+        text-align: center;
+        padding: 100px 40px;
+        font-size: 18px;
+        color: #888;
+      }
+    }
+
+    /* Make secret text unselectable & uncopyable when revealed */
+    .secret-protected {
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      -moz-user-select: none !important;
+      -ms-user-select: none !important;
+      -webkit-touch-callout: none !important;
+    }
+
+    /* Recording overlay */
+    .recording-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(14, 14, 17, 0.97);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .recording-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .recording-overlay-icon {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: var(--danger-subtle);
+      display: flex; align-items: center; justify-content: center;
+      animation: rec-pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes rec-pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.7; }
+    }
+    .recording-overlay-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .recording-overlay-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-align: center;
+      max-width: 380px;
+      line-height: 1.6;
+    }
+
+    /* Security status bar */
+    .security-status {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      z-index: 200;
+      transition: all 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .security-status.visible {
+      opacity: 1;
+    }
+    .security-status.safe {
+      color: var(--success);
+      background: var(--success-subtle);
+      border: 1px solid rgba(74,222,128,0.12);
+    }
+    .security-status.warn {
+      color: var(--danger);
+      background: var(--danger-subtle);
+      border: 1px solid rgba(239,68,68,0.15);
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── NAV ──────────────────────────────── -->
+  <nav>
+    <a class="logo-wrap" onclick="goHome()" id="nav-logo">
+      <div class="logo-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <span class="logo-text">SecretDrop</span>
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="#how" id="nav-how">How it works</a>
+    </div>
+  </nav>
+
+  <!-- ─── CREATE PAGE ──────────────────────── -->
+  <div id="createPage" class="container">
+    <div class="hero">
+      <h1>Secret<span>Drop</span></h1>
+      <p class="tagline">Secure. Self-destructing. Private.</p>
+    </div>
+
+    <div class="card" id="createCard">
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" id="tabText" onclick="switchTab('text')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Text Note
+        </button>
+        <button class="tab" id="tabFile" onclick="switchTab('file')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          File Upload
+        </button>
+      </div>
+
+      <!-- Text Input -->
+      <div id="textPanel">
+        <div class="form-group">
+          <label for="secretInput">Secret message</label>
+          <textarea id="secretInput" placeholder="Enter your secret note here..."></textarea>
+        </div>
+      </div>
+
+      <!-- File Input -->
+      <div id="filePanel" class="hidden">
+        <div class="form-group">
+          <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+            <div class="drop-zone-icon">📁</div>
+            <div class="drop-zone-text">Drop a file here or click to browse</div>
+            <div class="drop-zone-hint">Max 50 MB</div>
+          </div>
+          <input type="file" id="fileInput" style="display:none">
+          <div id="filePreview" class="hidden"></div>
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div class="options-row">
+        <div class="form-group">
+          <label for="expirySelect">Expires after</label>
+          <select id="expirySelect">
+            <option value="1">1 hour</option>
+            <option value="6">6 hours</option>
+            <option value="24" selected>24 hours</option>
+            <option value="72">3 days</option>
+            <option value="168">7 days</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="viewsSelect">Max views</label>
+          <select id="viewsSelect">
+            <option value="1" selected>1 view</option>
+            <option value="3">3 views</option>
+            <option value="5">5 views</option>
+            <option value="10">10 views</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <label class="password-toggle">
+        <input type="checkbox" id="passwordToggle" onchange="togglePassword()">
+        <span>Password protect this secret</span>
+      </label>
+      <div id="passwordField" class="form-group hidden">
+        <input type="password" id="passwordInput" placeholder="Enter a password">
+      </div>
+
+      <!-- Upload Progress -->
+      <div id="progressWrap" class="hidden">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button id="createBtn" class="btn btn-primary" onclick="createSecret()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Generate Secure Link
+      </button>
+
+      <!-- Result -->
+      <div id="resultArea" class="hidden">
+        <div class="result-card">
+          <div class="result-label">Secure Link</div>
+          <div class="result-link" id="secretLink"></div>
+          <div class="result-meta" id="resultMeta"></div>
+          <div class="result-actions">
+            <button class="btn btn-primary btn-sm" onclick="copyLink()" style="flex:1">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy Link
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="resetCreate()" style="flex:1">
+              New Secret
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Indicators -->
+    <div class="security-strip">
+      <div class="security-item"><div class="security-dot"></div> End-to-End Encrypted</div>
+      <div class="security-item"><div class="security-dot"></div> Auto Delete Enabled</div>
+      <div class="security-item"><div class="security-dot"></div> Zero Knowledge</div>
+    </div>
+
+    <!-- How it works -->
+    <div class="how-section" id="how">
+      <div class="how-title">How it works</div>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="how-step-num">01</div>
+          <div class="how-step-title">Create</div>
+          <div class="how-step-desc">Type a note or upload a file. Set expiration and optional password.</div>
+        </div>
+        <div class="how-step">
+          <div class="how-step-num">02</div>
+          <div class="how-step-title">Share</div>
+          <div class="how-step-desc">Get a unique encrypted link. Send it to the intended recipient.</div>
+        </div>
+        <div class="how-step">
+          <div class="how-step-num">03</div>
+          <div class="how-step-title">Destroyed</div>
+          <div class="how-step-desc">After viewing, the secret self-destructs. No traces left behind.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── VIEW PAGE ────────────────────────── -->
+  <div id="viewPage" class="container view-page hidden">
+    <div class="card view-card" id="viewCard">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 SecretDrop &middot; Privacy-first sharing</p>
+  </footer>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Recording Detection Overlay -->
+  <div id="recordingOverlay" class="recording-overlay">
+    <div class="recording-overlay-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+    </div>
+    <div class="recording-overlay-title">Screen Capture Detected</div>
+    <div class="recording-overlay-desc">
+      Screen recording or capture tool detected. Secret content has been hidden to protect privacy. Please disable screen recording to view the secret.
+    </div>
+  </div>
+
+  <!-- Security Status -->
+  <div id="securityStatus" class="security-status safe">
+    <div class="status-dot"></div>
+    <span id="securityLabel">Protected</span>
+  </div>
+
+  <script>
+    const API = window.location.origin;
+    let currentLink = '';
+    let selectedFile = null;
+    let currentTab = 'text';
+
+    /* ─── TABS ────────────────────────────── */
+    function switchTab(tab) {
+      currentTab = tab;
+      document.getElementById('tabText').classList.toggle('active', tab === 'text');
+      document.getElementById('tabFile').classList.toggle('active', tab === 'file');
+      document.getElementById('textPanel').classList.toggle('hidden', tab !== 'text');
+      document.getElementById('filePanel').classList.toggle('hidden', tab !== 'file');
+    }
+
+    /* ─── PASSWORD TOGGLE ─────────────────── */
+    function togglePassword() {
+      document.getElementById('passwordField').classList.toggle('hidden',
+        !document.getElementById('passwordToggle').checked);
+    }
+
+    /* ─── FILE DROP ZONE ──────────────────── */
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    ['dragenter', 'dragover'].forEach(e => {
+      dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.add('dragover'); });
+    });
+    ['dragleave', 'drop'].forEach(e => {
+      dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.remove('dragover'); });
+    });
+    dropZone.addEventListener('drop', ev => {
+      if (ev.dataTransfer.files.length) handleFile(ev.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) handleFile(fileInput.files[0]);
+    });
+
+    function handleFile(file) {
+      if (file.size > 50 * 1024 * 1024) {
+        showToast('File exceeds 50 MB limit');
+        return;
+      }
+      selectedFile = file;
+      dropZone.classList.add('hidden');
+      const preview = document.getElementById('filePreview');
+      preview.classList.remove('hidden');
+      preview.innerHTML = `
+        <div class="file-preview">
+          <div class="file-preview-icon">📄</div>
+          <div class="file-preview-info">
+            <div class="file-preview-name">${escapeHtml(file.name)}</div>
+            <div class="file-preview-meta">${formatSize(file.size)} · ${file.type || 'unknown'}</div>
+          </div>
+          <button class="file-remove" onclick="removeFile()" title="Remove file">✕</button>
+        </div>
+      `;
+    }
+
+    function removeFile() {
+      selectedFile = null;
+      fileInput.value = '';
+      document.getElementById('filePreview').classList.add('hidden');
+      dropZone.classList.remove('hidden');
+    }
+
+    /* ─── CREATE SECRET ───────────────────── */
+    async function createSecret() {
+      const secretText = document.getElementById('secretInput').value.trim();
+      const expiresIn = document.getElementById('expirySelect').value;
+      const maxViews = document.getElementById('viewsSelect').value;
+      const passwordEnabled = document.getElementById('passwordToggle').checked;
+      const password = passwordEnabled ? document.getElementById('passwordInput').value : '';
+
+      if (currentTab === 'text' && !secretText) {
+        showToast('Please enter a secret message');
+        return;
+      }
+      if (currentTab === 'file' && !selectedFile) {
+        showToast('Please select a file to upload');
+        return;
+      }
+
+      const btn = document.getElementById('createBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Generating...';
+
+      const progressWrap = document.getElementById('progressWrap');
+      const progressBar = document.getElementById('progressBar');
+
+      try {
+        const formData = new FormData();
+        if (currentTab === 'text') formData.append('secret', secretText);
+        if (currentTab === 'file' && selectedFile) formData.append('file', selectedFile);
+        formData.append('expiresIn', expiresIn);
+        formData.append('maxViews', maxViews);
+        if (password) formData.append('password', password);
+
+        // Show progress for file uploads
+        if (currentTab === 'file') {
+          progressWrap.classList.remove('hidden');
+        }
+
+        const xhr = new XMLHttpRequest();
+        const response = await new Promise((resolve, reject) => {
+          xhr.upload.addEventListener('progress', e => {
+            if (e.lengthComputable) {
+              progressBar.style.width = Math.round((e.loaded / e.total) * 100) + '%';
+            }
+          });
+          xhr.addEventListener('load', () => {
+            try { resolve(JSON.parse(xhr.responseText)); } catch { reject(new Error('Invalid response')); }
+          });
+          xhr.addEventListener('error', () => reject(new Error('Network error')));
+          xhr.open('POST', `${API}/api/secrets`);
+          xhr.send(formData);
+        });
+
+        if (xhr.status >= 400) throw new Error(response.error || 'Failed');
+
+        currentLink = response.link;
+        document.getElementById('secretLink').textContent = currentLink;
+
+        // Meta row
+        const meta = document.getElementById('resultMeta');
+        let metaHtml = `<span class="result-meta-item">⏱ ${response.expiresIn}h expiry</span>`;
+        metaHtml += `<span class="result-meta-item">👁 ${response.maxViews} view${response.maxViews > 1 ? 's' : ''}</span>`;
+        if (response.hasPassword) metaHtml += `<span class="result-meta-item">🔑 Password</span>`;
+        if (response.hasFile) metaHtml += `<span class="result-meta-item">📎 ${response.fileName}</span>`;
+        meta.innerHTML = metaHtml;
+
+        document.getElementById('resultArea').classList.remove('hidden');
+        progressWrap.classList.add('hidden');
+        progressBar.style.width = '0%';
+      } catch (err) {
+        showToast('Error: ' + err.message);
+        progressWrap.classList.add('hidden');
+        progressBar.style.width = '0%';
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Generate Secure Link`;
+    }
+
+    /* ─── COPY LINK ───────────────────────── */
+    function copyLink() {
+      navigator.clipboard.writeText(currentLink).then(() => showToast('Copied to clipboard')).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = currentLink;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        showToast('Copied to clipboard');
+      });
+    }
+
+    /* ─── RESET CREATE ────────────────────── */
+    function resetCreate() {
+      document.getElementById('resultArea').classList.add('hidden');
+      document.getElementById('secretInput').value = '';
+      document.getElementById('passwordInput').value = '';
+      document.getElementById('passwordToggle').checked = false;
+      document.getElementById('passwordField').classList.add('hidden');
+      removeFile();
+      switchTab('text');
+      currentLink = '';
+    }
+
+    /* ─── ROUTING ─────────────────────────── */
+    function route() {
+      const hash = window.location.hash;
+      const match = hash.match(/^#\/view\/([a-f0-9]+)$/);
+      if (match) {
+        showViewPage(match[1]);
+      } else {
+        document.getElementById('createPage').classList.remove('hidden');
+        document.getElementById('viewPage').classList.add('hidden');
+      }
+    }
+
+    /* ─── VIEW PAGE ───────────────────────── */
+    async function showViewPage(id) {
+      document.getElementById('createPage').classList.add('hidden');
+      const viewPage = document.getElementById('viewPage');
+      viewPage.classList.remove('hidden');
+      const card = document.getElementById('viewCard');
+
+      card.innerHTML = `<div style="padding:40px;text-align:center;color:var(--text-muted)"><span class="spinner" style="border-color:rgba(108,123,240,0.2);border-top-color:var(--accent);width:24px;height:24px;border-width:2.5px;"></span></div>`;
+
+      try {
+        const res = await fetch(`${API}/api/secrets/${id}/meta`);
+        const meta = await res.json();
+        if (!res.ok) throw new Error(meta.error);
+
+        let html = `
+          <h2>Secret Message</h2>
+          <p class="view-sub">Someone shared a secret with you</p>
+          <div class="warning-banner">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            This secret will self-destruct after viewing
+          </div>
+          <div class="views-indicator">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            ${meta.remainingViews} of ${meta.maxViews} view${meta.maxViews > 1 ? 's' : ''} remaining
+          </div>
+        `;
+
+        if (meta.hasPassword) {
+          html += `
+            <div class="password-prompt">
+              <input type="password" id="viewPassword" placeholder="Enter password to decrypt">
+            </div>
+          `;
+        }
+
+        html += `
+          <button class="btn btn-primary btn-sm" onclick="revealSecret('${id}')" id="revealBtn" style="max-width:260px;margin:0 auto;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Reveal Secret
+          </button>
+          <div id="secretContentArea"></div>
+          <div class="mt-24">
+            <button class="btn btn-ghost btn-sm" onclick="goHome()" style="max-width:260px;margin:0 auto;">
+              Create your own secret
+            </button>
+          </div>
+        `;
+
+        card.innerHTML = html;
+      } catch (err) {
+        card.innerHTML = `
+          <div class="error-card">
+            <div class="error-icon">🔒</div>
+            <div class="error-title">Secret Not Found</div>
+            <div class="error-desc">${escapeHtml(err.message)}</div>
+            <button class="btn btn-ghost btn-sm" onclick="goHome()" style="max-width:240px;margin:0 auto;">Create a new secret</button>
+          </div>
+        `;
+      }
+    }
+
+    /* ─── REVEAL SECRET ───────────────────── */
+    async function revealSecret(id) {
+      const btn = document.getElementById('revealBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Decrypting...';
+
+      const pwInput = document.getElementById('viewPassword');
+      const password = pwInput ? pwInput.value : '';
+
+      try {
+        const res = await fetch(`${API}/api/secrets/${id}/reveal`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        btn.classList.add('hidden');
+        if (pwInput) pwInput.parentElement.classList.add('hidden');
+
+        const area = document.getElementById('secretContentArea');
+        let contentHtml = '';
+
+        if (data.secret) {
+          contentHtml += `<div class="secret-content-box">${escapeHtml(data.secret)}</div>`;
+        }
+
+        if (data.hasFile) {
+          contentHtml += `
+            <div class="file-download-card">
+              <div class="file-download-icon">📄</div>
+              <div class="file-download-info">
+                <div class="file-download-name">${escapeHtml(data.fileName)}</div>
+                <div class="file-download-meta">${formatSize(data.fileSize)} · ${data.fileMimetype}</div>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="downloadFile('${escapeHtml(data.fileName)}', '${data.fileMimetype}', '${data.fileData}')" style="width:auto;flex-shrink:0;">
+                Download
+              </button>
+            </div>
+          `;
+        }
+
+        if (data.destroyed) {
+          contentHtml += `<div style="text-align:center;margin-top:16px;"><span class="destroyed-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            Secret destroyed</span></div>`;
+        } else if (data.remainingViews !== undefined) {
+          contentHtml += `<div style="text-align:center;margin-top:12px;">
+            <span class="views-indicator">${data.remainingViews} view${data.remainingViews !== 1 ? 's' : ''} remaining</span>
+          </div>`;
+        }
+
+        area.innerHTML = contentHtml;
+      } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Reveal Secret`;
+        showToast(err.message);
+      }
+    }
+
+    /* ─── FILE DOWNLOAD ───────────────────── */
+    function downloadFile(name, type, base64) {
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const blob = new Blob([bytes], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    /* ─── HELPERS ─────────────────────────── */
+    function goHome() { window.location.hash = ''; route(); }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    function escapeHtml(text) {
+      const d = document.createElement('div');
+      d.textContent = text;
+      return d.innerHTML;
+    }
+
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+    /* ─── INIT ────────────────────────────── */
+    window.addEventListener('hashchange', route);
+    route();
+
+    /* ═══════════════════════════════════════════════ */
+    /*  SCREENSHOT & RECORDING PROTECTION              */
+    /* ═══════════════════════════════════════════════ */
+    (function SecurityModule() {
+      let secretRevealed = false;
+      const overlay = document.getElementById('recordingOverlay');
+      const statusEl = document.getElementById('securityStatus');
+      const statusLabel = document.getElementById('securityLabel');
+
+      // Track if a secret is currently visible
+      window._setSecretRevealed = function(val) {
+        secretRevealed = val;
+        if (val) {
+          showSecurityStatus('safe', 'Protected');
+          // Add protection class to secret content
+          const boxes = document.querySelectorAll('.secret-content-box');
+          boxes.forEach(b => b.classList.add('secret-protected'));
+        }
+      };
+
+      /* ── 1. Block keyboard shortcuts ─────────── */
+      document.addEventListener('keydown', function(e) {
+        // PrintScreen
+        if (e.key === 'PrintScreen') {
+          e.preventDefault();
+          if (secretRevealed) triggerWarning('Screenshot blocked');
+          return;
+        }
+        // Ctrl+P (print)
+        if (e.ctrlKey && e.key === 'p') {
+          e.preventDefault();
+          if (secretRevealed) triggerWarning('Print blocked');
+          return;
+        }
+        // Ctrl+S (save)
+        if (e.ctrlKey && e.key === 's') {
+          e.preventDefault();
+          return;
+        }
+        // Ctrl+Shift+I / F12 (DevTools)
+        if ((e.ctrlKey && e.shiftKey && e.key === 'I') || e.key === 'F12') {
+          if (secretRevealed) {
+            e.preventDefault();
+            triggerWarning('DevTools blocked while viewing secret');
+            return;
+          }
+        }
+        // Ctrl+Shift+S (screenshot shortcut on some systems)
+        if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+          e.preventDefault();
+          if (secretRevealed) triggerWarning('Screenshot blocked');
+          return;
+        }
+        // Windows key + Shift + S (Snipping Tool) - can't fully block but we detect it
+        if (e.key === 'Meta' && e.shiftKey) {
+          if (secretRevealed) triggerWarning('Screen capture shortcut detected');
+        }
+      }, true);
+
+      /* ── 2. Block right-click on secret content ── */
+      document.addEventListener('contextmenu', function(e) {
+        if (secretRevealed && e.target.closest('.secret-content-box, .file-download-card, #secretContentArea')) {
+          e.preventDefault();
+          showToast('Right-click disabled on secret content');
+        }
+      });
+
+      /* ── 3. Detect visibility changes ──────────── */
+      // Tab switching during recording usually triggers this
+      let visibilityWarnings = 0;
+      document.addEventListener('visibilitychange', function() {
+        if (document.hidden && secretRevealed) {
+          visibilityWarnings++;
+          // After multiple rapid switches, suspect recording tool
+          if (visibilityWarnings > 2) {
+            showRecordingOverlay();
+          }
+        }
+        if (!document.hidden) {
+          // If coming back, reset counter slowly
+          setTimeout(() => { visibilityWarnings = Math.max(0, visibilityWarnings - 1); }, 3000);
+        }
+      });
+
+      /* ── 4. Detect window blur (screen capture tools) ── */
+      let blurCount = 0;
+      let lastBlurTime = 0;
+      window.addEventListener('blur', function() {
+        if (!secretRevealed) return;
+        const now = Date.now();
+        if (now - lastBlurTime < 1000) {
+          blurCount++;
+          if (blurCount > 2) {
+            showRecordingOverlay();
+          }
+        }
+        lastBlurTime = now;
+      });
+      window.addEventListener('focus', function() {
+        blurCount = 0;
+        hideRecordingOverlay();
+      });
+
+      /* ── 5. Detect screen capture API usage ──── */
+      if (navigator.mediaDevices) {
+        const origGetDisplayMedia = navigator.mediaDevices.getDisplayMedia;
+        if (origGetDisplayMedia) {
+          navigator.mediaDevices.getDisplayMedia = function() {
+            if (secretRevealed) {
+              showRecordingOverlay();
+              return Promise.reject(new Error('Screen capture blocked by SecretDrop'));
+            }
+            return origGetDisplayMedia.apply(this, arguments);
+          };
+        }
+      }
+
+      /* ── 6. Detect resize anomalies (recording tools) ── */
+      let lastWidth = window.innerWidth;
+      let lastHeight = window.innerHeight;
+      let resizeSpikes = 0;
+      window.addEventListener('resize', function() {
+        if (!secretRevealed) return;
+        const dw = Math.abs(window.innerWidth - lastWidth);
+        const dh = Math.abs(window.innerHeight - lastHeight);
+        // Sudden large resize can indicate screen capture toolbar
+        if (dw > 200 || dh > 200) {
+          resizeSpikes++;
+          if (resizeSpikes > 1) {
+            triggerWarning('Unusual resize detected');
+          }
+        }
+        lastWidth = window.innerWidth;
+        lastHeight = window.innerHeight;
+      });
+
+      /* ── 7. Block drag of secret content ─────── */
+      document.addEventListener('dragstart', function(e) {
+        if (secretRevealed && e.target.closest('.secret-content-box, #secretContentArea')) {
+          e.preventDefault();
+        }
+      });
+
+      /* ── 8. Block copy of secret content ─────── */
+      document.addEventListener('copy', function(e) {
+        if (secretRevealed && document.getSelection().anchorNode &&
+            document.getSelection().anchorNode.parentElement &&
+            document.getSelection().anchorNode.parentElement.closest('.secret-content-box, #secretContentArea')) {
+          e.preventDefault();
+          showToast('Copying secret content is disabled');
+        }
+      });
+
+      /* ── UI Helpers ──────────────────────────── */
+      function showRecordingOverlay() {
+        overlay.classList.add('active');
+        showSecurityStatus('warn', 'Capture Detected');
+      }
+      function hideRecordingOverlay() {
+        overlay.classList.remove('active');
+        if (secretRevealed) {
+          showSecurityStatus('safe', 'Protected');
+        }
+      }
+      function triggerWarning(msg) {
+        showToast(msg);
+        showSecurityStatus('warn', msg);
+        setTimeout(() => {
+          if (secretRevealed) showSecurityStatus('safe', 'Protected');
+        }, 3000);
+      }
+      function showSecurityStatus(type, label) {
+        statusEl.className = 'security-status visible ' + type;
+        statusLabel.textContent = label;
+      }
+
+      // Show the status when on view page
+      const origShowViewPage = window.showViewPage;
+      // Monitor when secret is actually revealed via the revealSecret fn
+      const origRevealSecret = window.revealSecret;
+
+    })();
+
+    // Patch revealSecret to enable protections after reveal
+    const _origRevealSecret = revealSecret;
+    revealSecret = async function(id) {
+      await _origRevealSecret(id);
+      window._setSecretRevealed(true);
+    };
+
+  </script>
+</body>
+</html>
